@@ -13,6 +13,7 @@
     "nuxt": "^3.4.3"
   },
   "dependencies": {
+    "@nuxt/devtools": "^0.4.6",
     "@unocss/nuxt": "^0.51.12"
   }
 }
