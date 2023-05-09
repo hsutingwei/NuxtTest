@@ -19,7 +19,7 @@ async function Login() {
 </script>
 
 <template>
-    <div>
+    <div class="bg-red-5">
         帳號<input type="text" v-model="username">
         密碼<input type="password" v-model="password">
         <button @click="Login">登入</button>
