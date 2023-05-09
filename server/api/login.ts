@@ -1,4 +1,8 @@
 export default defineEventHandler(async (event) => {
-    const body = await readBody<{ username: string, password: string }>(event);
-    return body.username == 'admin' && body.password == 'admin' ? true : false;
+    const { username, password } = await readBody<LoginRequest>(event);
+
+    // Add your account password verification logic here
+    const isValid = username === 'admin' && password === 'admin';
+    const response: ApiResponse = { success: isValid };
+    return response;
 })

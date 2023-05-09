@@ -11,7 +11,7 @@ async function Login() {
         }
     });
 
-    if (valid)
+    if (valid.success)
         console.log('成功');
     else
         console.log('失敗');
