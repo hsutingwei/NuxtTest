@@ -11,7 +11,7 @@ interface LoginRequest {
 /**
  * ApiResponse interface is used to define the response format of API.
  */
-interface ApiResponse<T> {
+interface ApiResponse<T = undefined> {
     /**Indicates whether the API call was successful. */
     success: boolean;
     /**The data returned by the API call. */
