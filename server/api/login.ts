@@ -1,3 +1,5 @@
+import { LoginRequest, ApiResponse } from '~/type'
+
 export default defineEventHandler(async (event) => {
     const { username, password } = await readBody<LoginRequest>(event);
 
