@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const username = ref('');
 const password = ref('');
-let message = 'dfgdsfh';
+const message = ref('');
 
 interface PasswordValidationResult {
     valid: boolean,
@@ -45,8 +45,8 @@ function validatePassword(password: string): PasswordValidationResult {
 async function Login() {
     const validPassword = validatePassword(password.value);
     if (!validPassword.valid) {
-        //message = validPassword.message;
-        console.log(message);
+        message.value = validPassword.message;
+        //console.log(message);
         return;
     }
     const valid = await $fetch('/api/login', {
@@ -74,7 +74,7 @@ function checkPassword(password: string): boolean {
     <div>
         帳號<input type="text" v-model="username">
         密碼<input type="password" v-model="password">
-        <span class="text-red" v-text="message"></span>
+        <span class="text-red">{{ message }}</span>
         <button @click="Login">登入</button>
     </div>
 </template>
