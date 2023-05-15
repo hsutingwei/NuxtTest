@@ -2,7 +2,8 @@
 export default defineNuxtConfig({
     modules: [
         '@nuxt/devtools',
-        '@unocss/nuxt'
+        '@unocss/nuxt',
+        '@sidebase/nuxt-auth'
     ],
     runtimeConfig: {
         public: {

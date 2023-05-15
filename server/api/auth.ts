@@ -9,5 +9,5 @@ const config = {
     issuerBaseURL: 'https://nuxttest-production.up.railway.app'
 };
 
-console.log(auth(config));
+//console.log(auth(config));
 export default fromNodeMiddleware(auth(config))
