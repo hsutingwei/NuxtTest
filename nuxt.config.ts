@@ -4,4 +4,10 @@ export default defineNuxtConfig({
         '@nuxt/devtools',
         '@unocss/nuxt'
     ],
+    runtimeConfig: {
+        public: {
+            AUTH0_CLIENTID: process.env.AUTH0_CLIENTID,
+            AUTH0_SECRET: process.env.AUTH0_SECRET,
+        }
+    }
 })

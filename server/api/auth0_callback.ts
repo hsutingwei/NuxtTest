@@ -6,6 +6,11 @@ const config = {
     secret: 'Gp6wrKBJ2CkoTAGUUhK1zv_ELJJTaDOs9BciJ9DYfmjYdPSDIxDuLEaD4WusbpEK',
     baseURL: 'http://localhost:3000',
     clientID: 'ehiYMGrwfM20Z2g4PIAgKLcg4vb96ZkJ',
-    issuerBaseURL: 'https://dev-tc6olcvek7d4xkgt.us.auth0.com'
+    issuerBaseURL: 'https://nuxttest-production.up.railway.app'
 };
 
+export default defineEventHandler(async (event) => {
+    let a = event.oidc.isAuthenticated();
+    console.log(a);
+    return '';
+})
