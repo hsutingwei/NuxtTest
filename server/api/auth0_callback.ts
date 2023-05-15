@@ -10,7 +10,7 @@ const config = {
 };
 
 export default defineEventHandler(async (event) => {
-    let a = event.oidc.isAuthenticated();
-    console.log(a);
+    //let a = event.oidc.isAuthenticated();
+    //console.log(a);
     return '';
 })

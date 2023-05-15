@@ -11,12 +11,14 @@
   },
   "devDependencies": {
     "@types/node": "^18",
+    "@types/pg": "^8.6.6",
     "nuxt": "^3.4.3"
   },
   "dependencies": {
     "@nuxt/devtools": "^0.4.6",
     "@unocss/nuxt": "^0.51.12",
     "express": "^4.18.2",
-    "express-openid-connect": "^2.16.0"
+    "express-openid-connect": "^2.16.0",
+    "pg": "^8.10.0"
   }
 }
