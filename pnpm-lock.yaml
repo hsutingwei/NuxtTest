@@ -1,12 +1,18 @@
 lockfileVersion: '6.0'
 
 dependencies:
+  '@auth0/auth0-spa-js':
+    specifier: ^2.0.4
+    version: 2.0.4
   '@nuxt/devtools':
     specifier: ^0.4.6
     version: 0.4.6(nuxt@3.4.3)
   '@unocss/nuxt':
     specifier: ^0.51.12
     version: 0.51.12
+  dotenv:
+    specifier: ^16.0.3
+    version: 16.0.3
   express:
     specifier: ^4.18.2
     version: 4.18.2
@@ -56,6 +62,10 @@ packages:
 
   /@antfu/utils@0.7.2:
     resolution: {integrity: sha512-vy9fM3pIxZmX07dL+VX1aZe7ynZ+YyB0jY+jE6r3hOK6GNY2t6W8rzpFC4tgpbXUYABkFQwgJq2XYXlxbXAI0g==}
+    dev: false
+
+  /@auth0/auth0-spa-js@2.0.4:
+    resolution: {integrity: sha512-NgD6Fkm5Xnbned1VjhEW8irm1/Y8AWtdSLexgLXNwwBVgfnYicCVBu8w75m2t+4QljXkTcI7IXVEFhVmxMuxaA==}
     dev: false
 
   /@babel/code-frame@7.21.4:
