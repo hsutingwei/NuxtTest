@@ -5,11 +5,8 @@ export default defineNuxtConfig({
         '@unocss/nuxt',
         '@sidebase/nuxt-auth'
     ],
-    runtimeConfig: {
-        public: {
-            AUTH0_CLIENTID: process.env.AUTH0_CLIENTID,
-            AUTH0_SECRET: process.env.AUTH0_SECRET,
-            DB_CON: process.env.DB_CON
-        }
+    auth: {
+        origin: process.env.ORIGIN,
+        enableGlobalAppMiddleware: true
     }
 })
