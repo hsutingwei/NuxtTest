@@ -4,6 +4,9 @@ dependencies:
   '@auth0/auth0-spa-js':
     specifier: ^2.0.4
     version: 2.0.4
+  '@auth0/auth0-vue':
+    specifier: ^2.2.0
+    version: 2.2.0
   '@nuxt/devtools':
     specifier: ^0.4.6
     version: 0.4.6(nuxt@3.4.3)
@@ -66,6 +69,18 @@ packages:
 
   /@auth0/auth0-spa-js@2.0.4:
     resolution: {integrity: sha512-NgD6Fkm5Xnbned1VjhEW8irm1/Y8AWtdSLexgLXNwwBVgfnYicCVBu8w75m2t+4QljXkTcI7IXVEFhVmxMuxaA==}
+    dev: false
+
+  /@auth0/auth0-vue@2.2.0:
+    resolution: {integrity: sha512-a8kNj9wF/hJFD/izAZojOTNlny/sq3qvuV8KLUreoQ92uMQBYiHtuclVHbRqoYxl2bwCtFJccttEmyYW3gzHDA==}
+    peerDependencies:
+      vue-router: ^4.0.12
+    peerDependenciesMeta:
+      vue-router:
+        optional: true
+    dependencies:
+      '@auth0/auth0-spa-js': 2.0.4
+      vue: 3.2.47
     dev: false
 
   /@babel/code-frame@7.21.4:

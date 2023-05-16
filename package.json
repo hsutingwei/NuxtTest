@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^2.0.4",
+    "@auth0/auth0-vue": "^2.2.0",
     "@nuxt/devtools": "^0.4.6",
     "@unocss/nuxt": "^0.51.12",
     "dotenv": "^16.0.3",

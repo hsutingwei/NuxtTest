@@ -1,22 +1,36 @@
 <template>
-    <button @click="login">登入</button>
+    <div>
+        <a v-if="!isAuthenticated" @click="login">
+            <slot>Log In</slot>
+        </a>
+        <a v-else @click="logout">
+            <slot>Log Out</slot>
+        </a>
+    </div>
 </template>
   
-<script setup lang="ts">
-import { defineComponent } from 'vue';
-import { useAuth0 } from '~/plugins/auth0.client';
+<script lang="ts" setup>
+import { useAuth0 } from '@auth0/auth0-vue'
 
-export default defineComponent({
-    setup() {
-        const auth0 = useAuth0();
+// Composition API
+const auth0 = process.client ? useAuth0() : undefined
+const isAuthenticated = computed(() => {
+    return auth0?.isAuthenticated.value
+})
 
-        const login = () => {
-            auth0.loginWithRedirect();
-        };
+const login = () => {
+    auth0?.checkSession()
+    if (!auth0?.isAuthenticated.value) {
+        auth0?.loginWithRedirect({
+            appState: {
+                target: useRoute().path,
+            },
+        })
+    }
+}
 
-        return {
-            login,
-        };
-    },
-});
+const logout = () => {
+    navigateTo('/')
+    auth0?.logout()
+}
 </script>
