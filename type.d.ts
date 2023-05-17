@@ -17,3 +17,10 @@ export interface ApiResponse<T = undefined> {
     /**The data returned by the API call. */
     data?: T;
 }
+
+/**The PasswordValidationResult interface is used to verify that the password is legitimate 
+ * and to prompt for a message.  */
+interface PasswordValidationResult {
+    valid: boolean,
+    message: string,
+}
