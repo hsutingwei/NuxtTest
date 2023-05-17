@@ -9,5 +9,11 @@ const config = {
     issuerBaseURL: env_value.public.AUTH0_DOMAIN
 };
 
-console.log(auth(config));
-//export default fromNodeMiddleware(auth(config))
+export default defineEventHandler(async (event) => {
+    console.log(event);
+    console.log('=====================');
+    console.log(auth(config));
+
+
+    return '';
+})
