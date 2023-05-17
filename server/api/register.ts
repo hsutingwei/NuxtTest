@@ -4,17 +4,24 @@ import crypto from 'crypto';
 const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
+    // 從請求中解析帳號和密碼
     const { username, password } = await readBody<LoginRequest>(event);
+
+    // 初始化回應物件
     let response: ApiResponse<{ message: string }> = {
         success: false,
         data: { message: '' }
     };
+
+    // 驗證密碼是否符合規則
     const pwdValid = validatePassword(password);
     if (!pwdValid.valid) {
         response.success = false;
         response.data.message = pwdValid.message;
         return response;
     }
+
+    // 建立 PostgreSQL 連線
     //const client = new pg.Client(env_value.DB_CON);
     try {
         // 檢查帳號是否存在
