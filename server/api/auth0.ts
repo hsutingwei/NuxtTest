@@ -1,31 +1,28 @@
 const env_value = useRuntimeConfig();
-const config = {
-    authRequired: false,
-    auth0Logout: true,
-    secret: env_value.AUTH0_SECRET,
-    baseURL: env_value.public.PROFILE_PAGE,
-    clientID: env_value.public.AUTH0_CLIENTID,
-    issuerBaseURL: env_value.public.AUTH0_DOMAIN
-};
 
 export default defineEventHandler(async (event) => {
-    /*let request = $fetch()
-    var options = { method: 'POST',
-  url: env_value.public.AUTH0_DOMAIN + '/oauth/token',
-  headers: { 'content-type': 'application/x-www-form-urlencoded' },
-  form:
-   { grant_type: 'authorization_code',
-     client_id: '{yourClientId}',
-     client_secret: 'YOUR_CLIENT_SECRET',
-     code: 'AUTHORIZATION_CODE',
-     redirect_uri: '{https://yourApp/callback}' }
-   };
+    const query = getQuery(event);
+    console.log(query);
+    type tokenResponse = {
+        access_token: string,
+        refresh_token: string,
+        id_token: string,
+        scope: string,
+        expires_in: string,
+        token_type: string
+    }
 
-request(options, function (error, response, body) {
-  if (error) throw new Error(error);
-
-  console.log(body);
-});*/
-
-    return '';
+    const tokenResponse = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/oauth/token`, {
+        method: 'POST',
+        body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            client_id: env_value.public.AUTH0_CLIENTID,
+            client_secret: env_value.AUTH0_SECRET,
+            code: query.code as string,
+            audience: 'NuxtLoginAPI',
+            redirect_uri: env_value.public.REDIRECT_URL
+        })
+    })
+    console.log(tokenResponse);
+    return sendRedirect(event, '/profile');
 })
