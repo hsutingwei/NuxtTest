@@ -1,4 +1,3 @@
-import { auth } from 'express-openid-connect'
 const env_value = useRuntimeConfig();
 const config = {
     authRequired: false,
@@ -10,10 +9,23 @@ const config = {
 };
 
 export default defineEventHandler(async (event) => {
-    console.log(event);
-    console.log('=====================');
-    console.log(auth(config));
+    /*let request = $fetch()
+    var options = { method: 'POST',
+  url: env_value.public.AUTH0_DOMAIN + '/oauth/token',
+  headers: { 'content-type': 'application/x-www-form-urlencoded' },
+  form:
+   { grant_type: 'authorization_code',
+     client_id: '{yourClientId}',
+     client_secret: 'YOUR_CLIENT_SECRET',
+     code: 'AUTHORIZATION_CODE',
+     redirect_uri: '{https://yourApp/callback}' }
+   };
 
+request(options, function (error, response, body) {
+  if (error) throw new Error(error);
+
+  console.log(body);
+});*/
 
     return '';
 })

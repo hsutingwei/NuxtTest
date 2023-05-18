@@ -16,6 +16,5 @@ export default defineNuxtConfig({
     },
     plugins: [
         '~/plugins/vue3-google-login.client.ts',
-        '~/plugins/auth0.ts'
     ]
 })

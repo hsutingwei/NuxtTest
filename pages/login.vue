@@ -1,18 +1,16 @@
 <template>
     <div>
-        <a
-            href="https://dev-tc6olcvek7d4xkgt.us.auth0.com/authorize?audience=API_IDENTIFIER&scope=SCOPE&response_type=code&client_id=ehiYMGrwfM20Z2g4PIAgKLcg4vb96ZkJ&redirect_uri=http://localhost:3000/api/auth0&state=STATE">登入</a>
+        <NuxtLink :to="google_auth0_link">Google登入</NuxtLink>
+        <NuxtLink :to="facebook_auth0_link">Facebook登入</NuxtLink>
     </div>
 </template>
   
 <script lang="ts" setup>
-let test = ref('');
-test = '/profile'
-let auth0_link = ref('');
-const auth0_domain = ref('')
-const runtimeConfig = useRuntimeConfig();
-auth0_link = runtimeConfig.public.AUTH0_DOMAIN + '/authorize?audience=API_IDENTIFIER&scope=SCOPE&response_type=code&client_id='
-    + runtimeConfig.public.AUTH0_CLIENTID + '&redirect_uri=' + runtimeConfig.public.PROFILE_PAGE + '&state=STATE';
-console.log(auth0_link);
-console.log('asd132sad145');
+let google_auth0_link = ref('');
+let facebook_auth0_link = ref('');
+const env_value = useRuntimeConfig();
+google_auth0_link.value = env_value.public.AUTH0_DOMAIN + '/authorize?audience=NuxtLoginAPI&scope=openid%20profile%20email&response_type=code&client_id='
+    + env_value.public.AUTH0_CLIENTID + '&redirect_uri=' + env_value.public.PROFILE_PAGE + '&connection=google-oauth2';
+facebook_auth0_link.value = env_value.public.AUTH0_DOMAIN + '/authorize?audience=NuxtLoginAPI&scope=openid%20profile%20email&response_type=code&client_id='
+    + env_value.public.AUTH0_CLIENTID + '&redirect_uri=' + env_value.public.PROFILE_PAGE + '&connection=facebook';
 </script>
