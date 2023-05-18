@@ -1,4 +1,5 @@
 import { LoginRequest, ApiResponse } from '~/type'
+import pg from 'pg'
 
 export default defineEventHandler(async (event) => {
     const { username, password } = await readBody<LoginRequest>(event);
@@ -11,3 +12,7 @@ export default defineEventHandler(async (event) => {
     console.log(password);*/
     return response;
 })
+
+function accountIsValid(username: string, password: string) {
+
+}
