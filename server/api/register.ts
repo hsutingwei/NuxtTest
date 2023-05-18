@@ -1,4 +1,4 @@
-import { LoginRequest, ApiResponse } from '~/type'
+import { LoginRequest, ApiResponse, PasswordValidationResult } from '~/type'
 import pg from 'pg'
 import crypto from 'crypto';
 const env_value = useRuntimeConfig();
@@ -13,28 +13,34 @@ export default defineEventHandler(async (event) => {
         data: { message: '' }
     };
 
+    //console.log(username, password);
     // 驗證密碼是否符合規則
     const pwdValid = validatePassword(password);
     if (!pwdValid.valid) {
-        response.success = false;
-        response.data.message = pwdValid.message;
-        return response;
+        return {
+            success: false,
+            data: { message: pwdValid.message }
+        } satisfies ApiResponse<{ message: string }>;
     }
 
     // 建立 PostgreSQL 連線
-    //const client = new pg.Client(env_value.DB_CON);
+    const client = new pg.Client(env_value.DB_CON);
+    let success: boolean = false;
+    let message: string = '';
     try {
         // 檢查帳號是否存在
         const existingUserQuery = 'SELECT COUNT(*) FROM users WHERE username = $1';
-        /*const { rows: existingUserRows } = await client.query(existingUserQuery, [username]);
+        await client.connect();
+        const { rows: existingUserRows } = await client.query(existingUserQuery, [username]);
         const existingUserCount = parseInt(existingUserRows[0].count, 10);
 
         if (existingUserCount > 0) {
-            response.success = false;
-            response.data.message = '帳號已存在';
             console.log('帳號已存在');
-            return response;
-        }*/
+            return {
+                success: false,
+                data: { message: '帳號已存在' }
+            } satisfies ApiResponse<{ message: string }>;
+        }
 
         // 加密和加鹽密碼
         const salt = 'yves.hsu2023';
@@ -42,28 +48,31 @@ export default defineEventHandler(async (event) => {
             .createHash('sha256')
             .update(password + salt)
             .digest('hex');
-        console.log(hashedPassword);
+        //console.log(hashedPassword);
 
         // 插入新使用者
-        /*const insertUserQuery =
+        const insertUserQuery =
             'INSERT INTO users (username, password, name) VALUES ($1, $2, $3)';
         const values = [
             username,
             hashedPassword,
             username,
         ];
-        await client.query(insertUserQuery, values);*/
-        response.success = true;
-        response.data.message = '新增成功';
+        await client.query(insertUserQuery, values);
+        success = true;
+        message = '新增成功';
     } catch (error) {
         console.log(error);
-        response.success = false;
-        response.data.message = '新增失敗';
+        success = false;
+        message = '新增失敗';
     } finally {
-        //client.release();
+        client.end();
     }
 
-    return response;
+    return {
+        success: success,
+        data: { message: message }
+    } satisfies ApiResponse<{ message: string }>;
 })
 
 function validatePassword(password: string): PasswordValidationResult {

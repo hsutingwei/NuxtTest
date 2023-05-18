@@ -20,7 +20,7 @@ export interface ApiResponse<T = undefined> {
 
 /**The PasswordValidationResult interface is used to verify that the password is legitimate 
  * and to prompt for a message.  */
-interface PasswordValidationResult {
+export interface PasswordValidationResult {
     valid: boolean,
     message: string,
 }

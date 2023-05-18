@@ -9,6 +9,7 @@
 </template>
 
 <script setup lang="ts">
+import { PasswordValidationResult } from '~/type'
 const username = ref('');
 const password = ref('');
 const password2 = ref('');
