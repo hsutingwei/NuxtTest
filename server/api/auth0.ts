@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
         token_type: string
     }
 
-    const tokenResponse = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/oauth/token`, {
+    const getToken = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/oauth/token`, {
         method: 'POST',
         body: new URLSearchParams({
             grant_type: 'authorization_code',
@@ -23,6 +23,6 @@ export default defineEventHandler(async (event) => {
             redirect_uri: env_value.public.REDIRECT_URL
         })
     })
-    console.log(tokenResponse);
+    console.log(getToken);
     return sendRedirect(event, '/profile');
 })
