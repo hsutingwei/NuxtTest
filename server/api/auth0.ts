@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
             redirect_uri: env_value.public.REDIRECT_URL
         })
     });
-
+    console.log(getToken);
     let tokenValid = false;
     if (getToken != null && getToken.access_token != null) {
         //嘗試解碼
@@ -39,7 +39,11 @@ export default defineEventHandler(async (event) => {
         if (tokenValid) {
             setCookie(event, 'id_token', getToken.id_token);
             let id_token = getCookie(event, 'id_token');
-            console.log(jwtDecode(id_token));
+            let decoded = jwtDecode(id_token);
+            console.log(decoded);
+
+            const au = new addUser(decoded.sub, decoded.name, '', true, decoded.sub.indexOf('google') == 0 ? 'google' : 'facebook');
+            console.log(au.addUserInDB());
 
             return sendRedirect(event, '/dashboard');
         }
