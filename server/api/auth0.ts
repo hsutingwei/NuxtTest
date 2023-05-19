@@ -24,5 +24,5 @@ export default defineEventHandler(async (event) => {
         })
     })
     console.log(getToken);
-    return sendRedirect(event, '/profile');
+    return sendRedirect(event, '/dashboard');
 })
