@@ -1,8 +1,8 @@
+import jwtDecode from "jwt-decode";
 const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
-    console.log(query);
     type tokenResponse = {
         access_token: string,
         refresh_token: string,
@@ -10,8 +10,9 @@ export default defineEventHandler(async (event) => {
         scope: string,
         expires_in: string,
         token_type: string
-    }
+    };
 
+    //取得API回傳的Token
     const getToken = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/oauth/token`, {
         method: 'POST',
         body: new URLSearchParams({
@@ -22,7 +23,27 @@ export default defineEventHandler(async (event) => {
             audience: 'NuxtLoginAPI',
             redirect_uri: env_value.public.REDIRECT_URL
         })
-    })
-    console.log(getToken);
-    return sendRedirect(event, '/dashboard');
+    });
+
+    let tokenValid = false;
+    if (getToken != null && getToken.access_token != null) {
+        //嘗試解碼
+        try {
+            const decoded = jwtDecode(getToken.id_token);
+            tokenValid = true;
+        }
+        catch (error) {
+            console.log(error);
+        }
+
+        if (tokenValid) {
+            setCookie(event, 'id_token', getToken.id_token);
+            let id_token = getCookie(event, 'id_token');
+            console.log(jwtDecode(id_token));
+
+            return sendRedirect(event, '/dashboard');
+        }
+    }
+
+    return sendRedirect(event, '/login');
 })
