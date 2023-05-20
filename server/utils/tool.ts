@@ -1,7 +1,8 @@
-import crypto from 'crypto';
+import crypto, { privateDecrypt } from 'crypto';
 import pg from 'pg'
 import { ApiResponse } from '~/type'
 const env_value = useRuntimeConfig();
+export const salt_global = 'yves.hsuNuxtLoginProject2023';
 
 export function EncryptionBySHA256(oriString: string, salt: string) {
     const hashPassword = crypto
@@ -12,6 +13,7 @@ export function EncryptionBySHA256(oriString: string, salt: string) {
     return hashPassword;
 }
 
+/**新增帳號至DB的class */
 export class addUser {
     account: string;
     username: string;
@@ -19,6 +21,13 @@ export class addUser {
     isOAuth: boolean;
     oAuthFrom: string;
 
+    /**初始化使用者資訊
+     * @param account 使用者帳號
+     * @param username 使用者名稱
+     * @param password 使用者密碼
+     * @param isOAuth 使用者是否來自OAuth
+     * @param oAuthFrom OAuth來源
+     */
     constructor(account: string, username: string, password: string, isOAuth?: boolean, oAuthFrom?: string) {
         this.account = account;
         this.username = username;
@@ -29,7 +38,7 @@ export class addUser {
 
     /**加密使用者的密碼 */
     private codedPassword(password: string): string {
-        return EncryptionBySHA256(password, 'yves.hsuNuxtLoginProject2023');
+        return EncryptionBySHA256(password, salt_global);
     }
 
     async addUserInDB(): Promise<ApiResponse<{ message: string; }>> {
