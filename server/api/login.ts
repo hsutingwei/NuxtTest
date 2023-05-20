@@ -7,13 +7,17 @@ export default defineEventHandler(async (event) => {
 
     const uo = new userOP(username, password);
     const isValid = await uo.accountValid();
-    if (isValid){
-
+    let success = false;
+    if (isValid) {
+        const keyResponse = await uo.getLoginKey();
+        console.log(keyResponse);
+        if (keyResponse.success) {
+            setCookie(event, 'userid', keyResponse.data.publicKey);
+            success = true;
+        }
     }
-    const response: ApiResponse = { success: isValid };
-    const env_value = useRuntimeConfig();
-    console.log(env_value);
-    /*console.log(username);
-    console.log(password);*/
-    return response;
+
+    return {
+        success: success
+    } satisfies ApiResponse;
 })

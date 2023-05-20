@@ -70,9 +70,9 @@ async function register() {
     });
 
     if (valid.success)
-        alert(valid.data.message);
+        alert(valid.data?.message);
     else
-        alert(valid.data.message);
+        alert(valid.data?.message);
 }
 
 </script>

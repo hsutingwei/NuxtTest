@@ -108,13 +108,16 @@ export class userOP {
             // 檢查帳號是否存在
             const existingUserQuery = 'SELECT COUNT(*) FROM users WHERE username = $1 and password = $2 and is_OAuth = false';
             await client.connect();
+            console.log(this.password);
             const { rows: existingUserRows } = await client.query(existingUserQuery, [this.account, this.password]);
             const existingUserCount = parseInt(existingUserRows[0].count, 10);
 
             if (existingUserCount > 0) {
-                console.log('帳號已存在');
+                console.log('帳號合法');
                 success = true;
             }
+            else
+                console.log('帳號不合法');
         } catch (error) {
             console.log(error);
         } finally {
@@ -124,7 +127,7 @@ export class userOP {
         return success;
     }
 
-    /**取得使用者公鑰私鑰 */
+    /**取得使用者公鑰私鑰，並將公司鑰存入Session DB */
     async getLoginKey() {
         const now = new Date();
         const nowStr = now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate();
@@ -138,8 +141,8 @@ export class userOP {
             await client.connect();
             // 插入Session
             const insertUserQuery =
-                'INSERT INTO usersessions (user_id, login_timestamp, last_activity_timestamp, publickey, privatekey)'
-                + '(select id, to_date($4, \'YYYY/MM/DD\'), to_date($4, \'YYYY/MM/DD\'), $5, $6 from users where username = $1 and password = $2 and is_verified = true and is_oauth = $3)';
+                'INSERT INTO usersessions (user_id, login_timestamp, last_activity_timestamp, publickey, privatekey, session_token)'
+                + '(select id, to_date($4, \'YYYY/MM/DD\'), to_date($4, \'YYYY/MM/DD\'), $5, $6, \'\' from users where username = $1 and password = $2 and is_verified = true and is_oauth = $3)';
             const values = [
                 this.account,
                 this.password,
@@ -149,7 +152,6 @@ export class userOP {
                 privateKey
             ];
             await client.query(insertUserQuery, values);
-            console.log(publicKey, privateKey);
             success = true;
         } catch (error) {
             console.log(error);
@@ -190,6 +192,8 @@ export class userOP {
                 console.log('公鑰合法');
                 success = true;
             }
+            else
+                console.log('公鑰不合法');
         } catch (error) {
             console.log(error);
         } finally {
