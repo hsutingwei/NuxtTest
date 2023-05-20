@@ -19,7 +19,7 @@ export class addUser {
     isOAuth: boolean;
     oAuthFrom: string;
 
-    constructor(account, username, password, isOAuth?, oAuthFrom?) {
+    constructor(account: string, username: string, password: string, isOAuth?: boolean, oAuthFrom?: string) {
         this.account = account;
         this.username = username;
         this.password = password != '' ? this.codedPassword(password) : '';
@@ -28,22 +28,21 @@ export class addUser {
     }
 
     /**加密使用者的密碼 */
-    private codedPassword(password): string {
+    private codedPassword(password: string): string {
         return EncryptionBySHA256(password, 'yves.hsuNuxtLoginProject2023');
     }
 
-    async addUserInDB(): ApiResponse<{ message: string }> {
-        /*if (this.accountIsExists())
+    async addUserInDB(): Promise<ApiResponse<{ message: string; }>> {
+        if (await this.accountIsExists())
             return {
                 success: false,
                 data: { message: '帳號已存在' }
             } satisfies ApiResponse<{ message: string }>;
-
         // 建立 PostgreSQL 連線
-        const client = new pg.Client(env_value.DB_CON);*/
+        const client = new pg.Client(env_value.DB_CON);
         let success = false;
-        let message = '666';
-        /*try {
+        let message = '';
+        try {
             await client.connect();
             // 插入新使用者
             const insertUserQuery =
@@ -53,6 +52,7 @@ export class addUser {
                 this.password,
                 this.username,
                 !this.isOAuth,
+                this.isOAuth,
                 this.oAuthFrom
             ];
             await client.query(insertUserQuery, values);
@@ -64,7 +64,7 @@ export class addUser {
             message = '新增失敗';
         } finally {
             client.end();
-        }*/
+        }
 
         return {
             success: success,
@@ -72,12 +72,12 @@ export class addUser {
         } satisfies ApiResponse<{ message: string }>;
     }
 
-    async accountIsExists(): boolean {
+    async accountIsExists(): Promise<boolean> {
         // 建立 PostgreSQL 連線
         const client = new pg.Client(env_value.DB_CON);
 
         // 檢查帳號是否存在
-        const existingUserQuery = 'SELECT COUNT(*) FROM users WHERE username = $1 and isOAuth = $2';
+        const existingUserQuery = 'SELECT COUNT(*) FROM users WHERE username = $1 and is_OAuth = $2';
         await client.connect();
         const { rows: existingUserRows } = await client.query(existingUserQuery, [this.account, this.isOAuth]);
         const existingUserCount = parseInt(existingUserRows[0].count, 10);
