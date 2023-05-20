@@ -1,7 +1,7 @@
 import pg from 'pg'
 import { ApiResponse } from '~/type'
+import { encryptionBySHA256, salt_global } from './encryptionTool';
 const env_value = useRuntimeConfig();
-export const salt_global = 'yves.hsuNuxtLoginProject2023';
 
 /**User相關操作的class */
 export class userOP {
@@ -18,9 +18,9 @@ export class userOP {
      * @param isOAuth 使用者是否來自OAuth
      * @param oAuthFrom OAuth來源
      */
-    constructor(account: string, username: string, password: string, isOAuth?: boolean, oAuthFrom?: string) {
+    constructor(account: string, password: string, username?: string, isOAuth?: boolean, oAuthFrom?: string) {
         this.account = account;
-        this.username = username;
+        this.username = username !== undefined ? username : '';
         this.password = password != '' ? this.codedPassword(password) : '';
         this.isOAuth = isOAuth !== undefined ? isOAuth : false;
         this.oAuthFrom = oAuthFrom !== undefined ? oAuthFrom : '';
@@ -28,7 +28,7 @@ export class userOP {
 
     /**加密使用者的密碼 */
     private codedPassword(password: string): string {
-        return EncryptionBySHA256(password, salt_global);
+        return encryptionBySHA256(password, salt_global);
     }
 
     /**新增帳號至User表 */
@@ -76,37 +76,126 @@ export class userOP {
     async accountIsExists(): Promise<boolean> {
         // 建立 PostgreSQL 連線
         const client = new pg.Client(env_value.DB_CON);
+        let success = false;
 
-        // 檢查帳號是否存在
-        const existingUserQuery = 'SELECT COUNT(*) FROM users WHERE username = $1 and is_OAuth = $2';
-        await client.connect();
-        const { rows: existingUserRows } = await client.query(existingUserQuery, [this.account, this.isOAuth]);
-        const existingUserCount = parseInt(existingUserRows[0].count, 10);
+        try {
+            // 檢查帳號是否存在
+            const existingUserQuery = 'SELECT COUNT(*) FROM users WHERE username = $1 and is_OAuth = $2';
+            await client.connect();
+            const { rows: existingUserRows } = await client.query(existingUserQuery, [this.account, this.isOAuth]);
+            const existingUserCount = parseInt(existingUserRows[0].count, 10);
 
-        if (existingUserCount > 0) {
-            console.log('帳號已存在');
-            return true;
+            if (existingUserCount > 0) {
+                console.log('帳號已存在');
+                success = true;
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            client.end();
         }
 
-        return false;
+        return success;
     }
 
     /**檢查帳號密碼是否合法 */
     async accountValid(): Promise<boolean> {
         // 建立 PostgreSQL 連線
         const client = new pg.Client(env_value.DB_CON);
+        let success = false;
 
-        // 檢查帳號是否存在
-        const existingUserQuery = 'SELECT COUNT(*) FROM users WHERE username = $1 and password = $2 and is_OAuth = false';
-        await client.connect();
-        const { rows: existingUserRows } = await client.query(existingUserQuery, [this.account, this.password]);
-        const existingUserCount = parseInt(existingUserRows[0].count, 10);
+        try {
+            // 檢查帳號是否存在
+            const existingUserQuery = 'SELECT COUNT(*) FROM users WHERE username = $1 and password = $2 and is_OAuth = false';
+            await client.connect();
+            const { rows: existingUserRows } = await client.query(existingUserQuery, [this.account, this.password]);
+            const existingUserCount = parseInt(existingUserRows[0].count, 10);
 
-        if (existingUserCount > 0) {
-            console.log('帳號合法');
-            return true;
+            if (existingUserCount > 0) {
+                console.log('帳號已存在');
+                success = true;
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            client.end();
         }
 
-        return false;
+        return success;
+    }
+
+    /**取得使用者公鑰私鑰 */
+    async getLoginKey() {
+        const now = new Date();
+        const nowStr = now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate();
+        const publicKey = encryptionBySHA256(this.account, nowStr);
+        const privateKey = encryptionBySHA256(publicKey, salt_global);
+
+        // 建立 PostgreSQL 連線
+        const client = new pg.Client(env_value.DB_CON);
+        let success = false;
+        try {
+            await client.connect();
+            // 插入Session
+            const insertUserQuery =
+                'INSERT INTO usersessions (user_id, login_timestamp, last_activity_timestamp, publickey, privatekey)'
+                + '(select id, to_date($4, \'YYYY/MM/DD\'), to_date($4, \'YYYY/MM/DD\'), $5, $6 from users where username = $1 and password = $2 and is_verified = true and is_oauth = $3)';
+            const values = [
+                this.account,
+                this.password,
+                this.isOAuth,
+                nowStr,
+                publicKey,
+                privateKey
+            ];
+            await client.query(insertUserQuery, values);
+            console.log(publicKey, privateKey);
+            success = true;
+        } catch (error) {
+            console.log(error);
+        } finally {
+            client.end();
+        }
+
+        return {
+            success: success,
+            data: {
+                publicKey: publicKey,
+                privateKey: privateKey
+            }
+        } satisfies ApiResponse<{
+            publicKey: string,
+            privateKey: string
+        }>;
+    }
+
+    /**公鑰是否合法
+     * @param publicKey 使用者公鑰
+     */
+    async keyValid(publicKey: string) {
+        const privateKey = encryptionBySHA256(publicKey, salt_global);
+
+        // 建立 PostgreSQL 連線
+        const client = new pg.Client(env_value.DB_CON);
+        let success = false;
+
+        try {
+            // 檢查帳號是否存在
+            const existingUserQuery = 'SELECT COUNT(*) FROM usersessions a left join users b on a.user_id = b.id WHERE b.username = $1 and a.publickey = $2 and a.privatekey = $3';
+            await client.connect();
+            const { rows: existingUserRows } = await client.query(existingUserQuery, [this.account, publicKey, privateKey]);
+            const existingUserCount = parseInt(existingUserRows[0].count, 10);
+
+            if (existingUserCount > 0) {
+                console.log('公鑰合法');
+                success = true;
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            client.end();
+        }
+
+        return success;
     }
 }

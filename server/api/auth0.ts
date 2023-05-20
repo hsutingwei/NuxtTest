@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
             const decoded: any = jwtDecode(getToken.id_token);
             //console.log(decoded);
 
-            const uo = new userOP(decoded.sub, decoded.name, '', true, decoded.sub.indexOf('google') == 0 ? 'google' : 'facebook');
+            const uo = new userOP(decoded.sub, '', decoded.name, true, decoded.sub.indexOf('google') == 0 ? 'google' : 'facebook');
             console.log((await uo.addUserInDB()).data?.message);
 
             return sendRedirect(event, '/dashboard');

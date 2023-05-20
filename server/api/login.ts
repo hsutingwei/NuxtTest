@@ -1,10 +1,15 @@
 import { LoginRequest, ApiResponse } from '~/type'
 import pg from 'pg'
+import { userOP } from '../utils/userTool';
 
 export default defineEventHandler(async (event) => {
     const { username, password } = await readBody<LoginRequest>(event);
 
-    const isValid = username === 'admin' && password === 'admin';
+    const uo = new userOP(username, password);
+    const isValid = await uo.accountValid();
+    if (isValid){
+
+    }
     const response: ApiResponse = { success: isValid };
     const env_value = useRuntimeConfig();
     console.log(env_value);
@@ -12,7 +17,3 @@ export default defineEventHandler(async (event) => {
     console.log(password);*/
     return response;
 })
-
-function accountIsValid(username: string, password: string) {
-
-}
