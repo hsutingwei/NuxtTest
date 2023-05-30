@@ -1,29 +1,41 @@
 import { LoginRequest, ApiResponse } from '~/type';
 import { userOP } from '../utils/userTool';
-import jwt from 'jsonwebtoken'
+import { signJWT, verifyJWT } from '../utils/jwt'
 
 export default defineEventHandler(async (event) => {
     const { username, password } = await readBody<LoginRequest>(event);
-
-    const payload = {
-        user_id: username,
-    }
-    const token = jwt.sign(payload, salt_global, { expiresIn: '1 day' });
-    const decoded = jwt.verify(token, salt_global);
-    console.log('=======');
-    console.log(decoded);
-
-    /*const uo = new userOP(username, password);
-    const isValid = await uo.accountValid();*/
+    const uo = new userOP(username, password);
+    const isValid = await uo.accountValid();
     let success = false;
-    /*if (isValid) {
+    if (isValid) {
         const keyResponse = await uo.getLoginKey();
         console.log(keyResponse);
         if (keyResponse.success) {
             setCookie(event, 'userid', keyResponse.data.publicKey);
             success = true;
+
+            // create access token
+            const accessToken = await signJWT(
+                {
+                    user_id: username,
+                    name: username,
+                    sessionId: keyResponse.data.publicKey
+                },
+                '5s'
+            );
+            const refreshToken = await signJWT({ sessionId: keyResponse.data.publicKey }, '1y');
+
+            // set access token in cookie
+            setCookie(event, 'accessToken', accessToken, {
+                maxAge: 300000,
+                httpOnly: true
+            });
+            setCookie(event, 'refreshToken', refreshToken, {
+                maxAge: 3.154e10,
+                httpOnly: true
+            });
         }
-    }*/
+    }
 
     return {
         success: success
