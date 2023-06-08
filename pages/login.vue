@@ -22,15 +22,31 @@ facebook_auth0_link.value = env_value.public.AUTH0_DOMAIN + '/authorize?audience
     + env_value.public.AUTH0_CLIENTID + '&redirect_uri=' + env_value.public.REDIRECT_URL + '&connection=facebook';
 
 async function login() {
-    const valid = await $fetch('/api/login', {
-        'method': 'post',
-        'body': {
-            username: username.value,
-            password: password.value
-        }
-    });
+    type tokenResponse = {
+        access_token: string,
+        expires_in: string,
+        token_type: string,
+    };
+    console.log(env_value.public.AUTH0_CLIENTID)
+    console.log(env_value.public.test)
 
-    if (valid.success)
-        window.location.href = '/dashboard';
+    //取得API回傳的Token
+    try {
+        const getToken = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/oauth/token`, {
+            method: 'POST',
+            body: new URLSearchParams({
+                grant_type: 'password',
+                username: username.value,//test@test.com
+                password: password.value,//asdZXC123*
+                scope: 'openid profile email offline_access',
+                client_id: env_value.public.AUTH0_CLIENTID,
+                client_secret: env_value.public.test,
+                audience: 'NuxtLoginAPI',
+            })
+        });
+        console.log(getToken);
+    } catch (error) {
+        console.log(error);
+    }
 }
 </script>
