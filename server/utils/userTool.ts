@@ -127,7 +127,7 @@ export class userOP {
         return success;
     }
 
-    /**取得使用者公鑰私鑰，並將公司鑰存入Session DB */
+    /**取得使用者公鑰私鑰，並將公私鑰存入Session DB */
     async getLoginKey() {
         const now = new Date();
         const nowStr = now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate();
