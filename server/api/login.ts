@@ -1,10 +1,39 @@
 import { LoginRequest, ApiResponse } from '~/type';
 import { userOP } from '../utils/userTool';
 import { signJWT, verifyJWT } from '../utils/jwt'
+const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const { username, password } = await readBody<LoginRequest>(event);
-    const uo = new userOP(username, password);
+    let success = false;
+    type tokenResponse = {
+        access_token: string,
+        expires_in: string,
+        token_type: string,
+    };
+
+    //取得API回傳的Token
+    try {
+        const getToken = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/oauth/token`, {
+            method: 'POST',
+            body: new URLSearchParams({
+                grant_type: 'password',
+                username: username,
+                password: password,
+                scope: 'openid profile email offline_access',
+                client_id: env_value.public.AUTH0_CLIENTID,
+                client_secret: env_value.AUTH0_SECRET,
+                audience: 'NuxtLoginAPI',
+            })
+        });
+        console.log(getToken);
+        success = true;
+    } catch (error) {
+        console.log(error);
+    }
+
+
+    /*const uo = new userOP(username, password);
     const isValid = await uo.accountValid();
     let success = false;
     if (isValid) {
@@ -35,7 +64,7 @@ export default defineEventHandler(async (event) => {
                 httpOnly: true
             });
         }
-    }
+    }*/
 
     return {
         success: success
