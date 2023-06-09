@@ -70,7 +70,7 @@ async function register() {
     });
 
     if (valid.success)
-        alert(valid.data?.message);
+        alert('新增成功');
     else
         alert(valid.data?.message);
 }

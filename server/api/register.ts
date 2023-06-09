@@ -16,8 +16,41 @@ export default defineEventHandler(async (event) => {
         } satisfies ApiResponse<{ message: string }>;
     }
 
-    const uo = new userOP(username, password, username, false);
-    return await uo.addUserInDB();
+    let success = false;
+    type tokenResponse = {
+        _id: string,
+        email_verified: boolean,
+        email: string,
+        username: string,
+        given_name: string,
+        family_name: string,
+        name: string,
+        nickname: string,
+        picture: string,
+    };
+
+    //取得API回傳的Token
+    try {
+        const getToken = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/dbconnections/signup`, {
+            method: 'POST',
+            body: new URLSearchParams({
+                client_id: env_value.public.AUTH0_CLIENTID,
+                email: username,
+                password: password,
+                connection: 'Username-Password-Authentication',
+                username: username,
+            })
+        });
+        console.log(getToken);
+        success = true;
+    } catch (error) {
+        console.log(error);
+    }
+
+    return {
+        success: success,
+        data: { message: '' }
+    } satisfies ApiResponse<{ message: string }>;
 })
 
 function validatePassword(password: string): PasswordValidationResult {
