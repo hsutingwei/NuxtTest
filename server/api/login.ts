@@ -8,7 +8,8 @@ export default defineEventHandler(async (event) => {
     let success = false;
     type tokenResponse = {
         access_token: string,
-        expires_in: string,
+        refresh_token: string,
+        expires_in: number,
         token_type: string,
     };
 
@@ -26,8 +27,20 @@ export default defineEventHandler(async (event) => {
                 audience: 'NuxtLoginAPI',
             })
         });
-        console.log(getToken);
         success = true;
+        console.log(getToken);//86400//7200
+
+        // set access token in cookie
+        setCookie(event, 'accessToken', getToken.access_token, {
+            httpOnly: true,
+            expires: new Date(Date.now() + getToken.expires_in * 1000),
+            sameSite: 'strict'
+        });
+        setCookie(event, 'refreshToken', getToken.refresh_token, {
+            httpOnly: true,
+            expires: new Date(Date.now() + 31557600),
+            sameSite: 'strict'
+        });
     } catch (error) {
         console.log(error);
     }
