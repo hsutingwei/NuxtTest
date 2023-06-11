@@ -1,6 +1,7 @@
 import { LoginRequest, ApiResponse, PasswordValidationResult } from '~/type'
 import pg from 'pg'
 import crypto from 'crypto';
+import { json } from 'stream/consumers';
 const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
@@ -33,13 +34,13 @@ export default defineEventHandler(async (event) => {
     try {
         const getToken = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/dbconnections/signup`, {
             method: 'POST',
-            body: new URLSearchParams({
+            body: {
                 client_id: env_value.public.AUTH0_CLIENTID,
                 email: username,
                 password: password,
                 connection: 'Username-Password-Authentication',
                 username: username,
-            })
+            }
         });
         console.log(getToken);
         success = true;
