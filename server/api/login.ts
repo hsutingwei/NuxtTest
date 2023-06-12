@@ -33,9 +33,10 @@ export default defineEventHandler(async (event) => {
         // set access token in cookie
         setCookie(event, 'accessToken', getToken.access_token, {
             httpOnly: true,
-            expires: new Date(Date.now() + getToken.expires_in * 1000),
+            expires: new Date(Date.now() + getToken.expires_in * 1000 + 1000 * 60 * 60 * 24 * 7),
             sameSite: 'strict'
         });
+        // set refresh token in cookie
         setCookie(event, 'refreshToken', getToken.refresh_token, {
             httpOnly: true,
             expires: new Date(Date.now() + 31557600),

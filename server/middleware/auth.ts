@@ -4,7 +4,8 @@ import { error } from 'console';
 const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
-    //event.
+    if ((event.node.req.url || '').indexOf('login') > -1)
+        return;
 
     let accessToken = '';
     if (!getCookie(event, 'accessToken'))
@@ -36,6 +37,7 @@ export default defineEventHandler(async (event) => {
 
     try {
         Jwt.verify(accessToken, PublicKey, { algorithms: ['RS256'] });
+        console.log('ok');
     } catch (e) {
         if (e instanceof Jwt.TokenExpiredError) {//access token is expired
             type tokenResponse = {
@@ -43,7 +45,7 @@ export default defineEventHandler(async (event) => {
                 refresh_token: string,
                 id_token: string,
                 scope: string,
-                expires_in: string,
+                expires_in: number,
                 token_type: string
             };
 
@@ -58,7 +60,18 @@ export default defineEventHandler(async (event) => {
                 })
             });
 
-            console.log(getToken);
+            // set access token in cookie
+            setCookie(event, 'accessToken', getToken.access_token, {
+                httpOnly: true,
+                expires: new Date(Date.now() + getToken.expires_in * 1000 + 1000 * 60 * 60 * 24 * 7),
+                sameSite: 'strict'
+            });
+            // set refresh token in cookie
+            setCookie(event, 'refreshToken', getToken.refresh_token, {
+                httpOnly: true,
+                expires: new Date(Date.now() + 31557600),
+                sameSite: 'strict'
+            });
         } else {//re-get piblic key
 
         }
