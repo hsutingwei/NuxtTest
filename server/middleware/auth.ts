@@ -17,27 +17,23 @@ export default defineEventHandler(async (event) => {
     let decodeAccessToken = Jwt.decode(accessToken, { complete: true });
 
     //Get Public key
-    let PublicKey = '';
+    let publicKey = '';
     if (await useStorage().getItem('PublicKey')) {
-        PublicKey = (await useStorage().getItem('PublicKey'))?.toString() || '';
+        publicKey = (await useStorage().getItem('PublicKey'))?.toString() || '';
     } else {
-        try {
-            const client = jwksClient({
-                jwksUri: env_value.public.AUTH0_DOMAIN + '/.well-known/jwks.json',
-            });
-            //Get kid
-            const kid = decodeAccessToken?.header.kid;
-            const key = await client.getSigningKey(kid);
-            PublicKey = key.getPublicKey();
-            await useStorage().setItem('PublicKey', PublicKey);
-        } catch {
-            throw createError({ statusCode: 401, statusMessage: 'no kid/PublicKey information' })
-        }
+        publicKey = await getPublicKey(decodeAccessToken?.header.kid || '')
+        await useStorage().setItem('PublicKey', publicKey);
     }
+    if (publicKey == '')
+        throw createError({ statusCode: 401, statusMessage: 'no kid/PublicKey information' })
 
+    /**Access token is Verified */
+    let isVerified = false;
+
+    //Verfy access token
     try {
-        Jwt.verify(accessToken, PublicKey, { algorithms: ['RS256'] });
-        console.log('ok');
+        Jwt.verify(accessToken, publicKey, { algorithms: ['RS256'] });
+        isVerified = true;
     } catch (e) {
         if (e instanceof Jwt.TokenExpiredError) {//access token is expired
             type tokenResponse = {
@@ -72,8 +68,43 @@ export default defineEventHandler(async (event) => {
                 expires: new Date(Date.now() + 31557600),
                 sameSite: 'strict'
             });
-        } else {//re-get piblic key
 
+            isVerified = true;
+        } else {//re-get piblic key
+            publicKey = await getPublicKey(decodeAccessToken?.header.kid || '')
+            await useStorage().setItem('PublicKey', publicKey);
+            if (publicKey == '')
+                throw createError({ statusCode: 401, statusMessage: 'no kid/PublicKey information' })
+
+            try {
+                Jwt.verify(accessToken, publicKey, { algorithms: ['RS256'] });
+                isVerified = true;
+            } catch { }
         }
     }
+
+    if (isVerified) {
+        //取得API回傳的Profile
+        const getProfile = await $fetch<any>(`${env_value.public.AUTH0_DOMAIN}/userinfo`, {
+            method: 'get'
+        });
+        console.log(getProfile);
+    }
 })
+
+/**
+ * Get public key by kid
+ * @param kid kid in access token's header
+ */
+async function getPublicKey(kid: string) {
+    let publicKey = '';
+    try {
+        const client = jwksClient({
+            jwksUri: env_value.public.AUTH0_DOMAIN + '/.well-known/jwks.json',
+        });
+        const key = await client.getSigningKey(kid);
+        publicKey = key.getPublicKey();
+    } catch { }
+
+    return publicKey;
+}
