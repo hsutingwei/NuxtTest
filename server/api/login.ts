@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
         refresh_token: string,
         expires_in: number,
         token_type: string,
+        id_token: string
     };
 
     //取得API回傳的Token
@@ -40,6 +41,12 @@ export default defineEventHandler(async (event) => {
         setCookie(event, 'refreshToken', getToken.refresh_token, {
             httpOnly: true,
             expires: new Date(Date.now() + 31557600),
+            sameSite: 'strict'
+        });
+        // set id token in cookie
+        setCookie(event, 'idToken', getToken.id_token, {
+            httpOnly: true,
+            expires: new Date(Date.now() + getToken.expires_in * 1000 + 1000 * 60 * 60 * 24 * 7),
             sameSite: 'strict'
         });
     } catch (error) {
