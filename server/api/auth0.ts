@@ -1,17 +1,10 @@
 import jwtDecode from "jwt-decode";
 import { userOP } from "../utils/userTool";
+import { tokenResponse } from '~/type'
 const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
-    type tokenResponse = {
-        access_token: string,
-        refresh_token: string,
-        id_token: string,
-        scope: string,
-        expires_in: string,
-        token_type: string
-    };
 
     //取得API回傳的Token
     const getToken = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/oauth/token`, {
@@ -25,8 +18,27 @@ export default defineEventHandler(async (event) => {
             redirect_uri: env_value.public.REDIRECT_URL
         })
     });
-    //console.log(getToken);
-    let tokenValid = false;
+    console.log(getToken);
+    // set access token in cookie
+    setCookie(event, 'accessToken', getToken.access_token, {
+        httpOnly: true,
+        expires: new Date(Date.now() + getToken.expires_in * 1000 + 1000 * 60 * 60 * 24 * 7),
+        sameSite: 'strict'
+    });
+    // set refresh token in cookie
+    setCookie(event, 'refreshToken', getToken.refresh_token, {
+        httpOnly: true,
+        expires: new Date(Date.now() + 31557600),
+        sameSite: 'strict'
+    });
+    // set id token in cookie
+    setCookie(event, 'idToken', getToken.id_token, {
+        httpOnly: true,
+        expires: new Date(Date.now() + getToken.expires_in * 1000 + 1000 * 60 * 60 * 24 * 7),
+        sameSite: 'strict'
+    });
+
+    /*let tokenValid = false;
     if (getToken != null && getToken.access_token != null) {
         //嘗試解碼
         try {
@@ -48,7 +60,7 @@ export default defineEventHandler(async (event) => {
 
             return sendRedirect(event, '/dashboard');
         }
-    }
+    }*/
 
-    return sendRedirect(event, '/login');
+    return sendRedirect(event, '/dashboard');
 })

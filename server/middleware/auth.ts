@@ -5,7 +5,8 @@ import { error } from 'console';
 const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
-    if ((event.node.req.url || '').indexOf('login') > -1)
+    console.log(event.node.req.url)
+    if ((event.node.req.url || '').indexOf('login') > -1 || (event.node.req.url || '').indexOf('api/auth0') > -1)
         return;
 
     let accessToken = '';
@@ -89,9 +90,9 @@ export default defineEventHandler(async (event) => {
 
     if (isVerified) {
         console.log('ok')
-        /*console.log(getCookie(event, 'idToken'))
+        console.log(getCookie(event, 'idToken'))
         //取得API回傳的Profile
-        const getProfile = await $fetch<any>(`${env_value.public.AUTH0_DOMAIN}/tokeninfo`, {
+        /*const getProfile = await $fetch<any>(`${env_value.public.AUTH0_DOMAIN}/tokeninfo`, {
             method: 'post',
             body: {
                 id_token: getCookie(event, 'idToken') || '',
