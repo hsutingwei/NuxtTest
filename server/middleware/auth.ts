@@ -9,6 +9,8 @@ export default defineEventHandler(async (event) => {
     if ((event.node.req.url || '').indexOf('login') > -1 || (event.node.req.url || '').indexOf('api/auth0') > -1)
         return;
 
+    console.log(1)
+    console.log(getCookie(event, 'refreshToken'))
     let accessToken = '';
     if (!getCookie(event, 'accessToken'))
         throw createError({ statusCode: 401, statusMessage: 'no access information' })
@@ -18,21 +20,23 @@ export default defineEventHandler(async (event) => {
     //Decode AccessToken
     let decodeAccessToken = Jwt.decode(accessToken, { complete: true });
 
+    console.log(2)
     //Get Public key
     let publicKey = await getPublicKey(decodeAccessToken?.header.kid || '');
 
     /**Access token is Verified */
     let isVerified = false;
 
+    console.log(3)
     //Verfy access token
     try {
         Jwt.verify(accessToken, publicKey, { algorithms: ['RS256'] });
         isVerified = true;
+        console.log(4)
     } catch (e) {
         if (e instanceof Jwt.TokenExpiredError) {//access token is expired
             //Refresh token
             const reToken: tokenResponse = await refreshToken(getCookie(event, 'refreshToken') || '')
-
             // set access token in cookie
             setCookie(event, 'accessToken', reToken.access_token, {
                 httpOnly: true,
@@ -89,16 +93,18 @@ export default defineEventHandler(async (event) => {
     }
 
     if (isVerified) {
-        console.log('ok')
-        console.log(getCookie(event, 'idToken'))
+        console.log(55)
+        const access_token = getCookie(event, 'accessToken')
+        console.log(access_token)
         //取得API回傳的Profile
-        /*const getProfile = await $fetch<any>(`${env_value.public.AUTH0_DOMAIN}/tokeninfo`, {
-            method: 'post',
-            body: {
-                id_token: getCookie(event, 'idToken') || '',
+        const getProfile = await $fetch<any>(`${env_value.public.AUTH0_DOMAIN}/userinfo`, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + (access_token || ''),
+                'Content-Type': 'application/json'
             }
         });
-        console.log(getProfile);*/
+        console.log(getProfile);
     }
     /*else
         throw createError({ statusCode: 401, statusMessage: 'no verify' })*/

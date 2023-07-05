@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
             sameSite: 'strict'
         });
         // set refresh token in cookie
+        console.log(getToken.refresh_token)
         setCookie(event, 'refreshToken', getToken.refresh_token, {
             httpOnly: true,
             expires: new Date(Date.now() + 31557600),
