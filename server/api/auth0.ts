@@ -5,6 +5,15 @@ const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
+<<<<<<< HEAD
+=======
+    type tokenResponse = {
+        access_token: string,
+        refresh_token: string,
+        expires_in: number,
+        token_type: string,
+    };
+>>>>>>> 7d8aea5 (feat: Complete authentication in middleware)
 
     //取得API回傳的Token
     const getToken = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/oauth/token`, {
@@ -40,15 +49,21 @@ export default defineEventHandler(async (event) => {
 
     /*let tokenValid = false;
     if (getToken != null && getToken.access_token != null) {
-        //嘗試解碼
-        try {
-            const decoded = jwtDecode(getToken.id_token);
-            tokenValid = true;
-        }
-        catch (error) {
-            console.log(error);
-        }
+        // set access token in cookie
+        setCookie(event, 'accessToken', getToken.access_token, {
+            httpOnly: true,
+            expires: new Date(Date.now() + getToken.expires_in * 1000 + 1000 * 60 * 60 * 24 * 7),
+            sameSite: 'strict'
+        });
+        // set refresh token in cookie
+        console.log(getToken.refresh_token)
+        setCookie(event, 'refreshToken', getToken.refresh_token, {
+            httpOnly: true,
+            expires: new Date(Date.now() + 31557600),
+            sameSite: 'strict'
+        });
 
+<<<<<<< HEAD
         if (tokenValid) {
             setCookie(event, 'id_token', getToken.id_token);
             //let id_token = getCookie(event, 'id_token') || '';
@@ -61,6 +76,10 @@ export default defineEventHandler(async (event) => {
             return sendRedirect(event, '/dashboard');
         }
     }*/
+=======
+        return sendRedirect(event, '/dashboard');
+    }
+>>>>>>> 7d8aea5 (feat: Complete authentication in middleware)
 
     return sendRedirect(event, '/dashboard');
 })

@@ -6,10 +6,9 @@ const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     console.log(event.node.req.url)
-    if ((event.node.req.url || '').indexOf('login') > -1 || (event.node.req.url || '').indexOf('api/auth0') > -1)
+    if ((event.node.req.url || '').indexOf('login') > -1 || (event.node.req.url || '').indexOf('/api/auth0') > -1)
         return;
 
-    console.log(1)
     console.log(getCookie(event, 'refreshToken'))
     let accessToken = '';
     if (!getCookie(event, 'accessToken'))
@@ -20,14 +19,12 @@ export default defineEventHandler(async (event) => {
     //Decode AccessToken
     let decodeAccessToken = Jwt.decode(accessToken, { complete: true });
 
-    console.log(2)
     //Get Public key
     let publicKey = await getPublicKey(decodeAccessToken?.header.kid || '');
 
     /**Access token is Verified */
     let isVerified = false;
 
-    console.log(3)
     //Verfy access token
     try {
         Jwt.verify(accessToken, publicKey, { algorithms: ['RS256'] });
