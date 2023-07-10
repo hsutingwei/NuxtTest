@@ -62,6 +62,26 @@ export default defineEventHandler(async (event) => {
             expires: new Date(Date.now() + 31557600),
             sameSite: 'strict'
         });
+        type tokenResponse = {
+            sub: string,
+            nickname: string,
+            name: string,
+            picture: string,
+            updated_at: string,
+            email: string,
+            email_verified: boolean
+        };
+
+        //取得API回傳的Profile
+        const getProfile = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/userinfo`, {
+            method: 'get',
+            headers: {
+                'Authorization': 'Bearer ' + getToken.access_token,
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log(getProfile);
+        event.context.userProfile = getProfile
 
 <<<<<<< HEAD
         if (tokenValid) {

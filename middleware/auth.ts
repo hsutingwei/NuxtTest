@@ -1,5 +1,9 @@
-import { defineEventHandler, getCookie } from 'h3';
+export default defineNuxtRouteMiddleware((to, from) => {
+    console.log(99999)
+    const userProfile = useNuxtApp().ssrContext?.event.context.userProfile
+    useState('userProfile', () => userProfile)
+    console.log(userProfile)
 
-export default defineEventHandler((event) => {
-  
-})
+    if (!userProfile)
+        return navigateTo('/login')
+});
