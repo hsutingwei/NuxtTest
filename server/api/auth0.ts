@@ -5,15 +5,6 @@ const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
-<<<<<<< HEAD
-=======
-    type tokenResponse = {
-        access_token: string,
-        refresh_token: string,
-        expires_in: number,
-        token_type: string,
-    };
->>>>>>> 7d8aea5 (feat: Complete authentication in middleware)
 
     //取得API回傳的Token
     const getToken = await $fetch<tokenResponse>(`${env_value.public.AUTH0_DOMAIN}/oauth/token`, {
@@ -83,7 +74,6 @@ export default defineEventHandler(async (event) => {
         console.log(getProfile);
         event.context.userProfile = getProfile
 
-<<<<<<< HEAD
         if (tokenValid) {
             setCookie(event, 'id_token', getToken.id_token);
             //let id_token = getCookie(event, 'id_token') || '';
@@ -96,10 +86,6 @@ export default defineEventHandler(async (event) => {
             return sendRedirect(event, '/dashboard');
         }
     }*/
-=======
-        return sendRedirect(event, '/dashboard');
-    }
->>>>>>> 7d8aea5 (feat: Complete authentication in middleware)
 
     return sendRedirect(event, '/dashboard');
 })

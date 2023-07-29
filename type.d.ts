@@ -34,3 +34,21 @@ export type tokenResponse = {
     expires_in: number,
     token_type?: string
 };
+
+export type verifyEvent = {
+    sub: {
+        sub: string,
+        nickname: string,
+        name: string,
+        picture: string,
+        updated_at: string,
+        email: string,
+        email_verified: boolean
+    }
+}
+
+declare module 'h3' {
+    interface H3EventContext {
+        userInfo: verifyEvent | null
+    }
+}

@@ -1,18 +1,20 @@
-import jwksClient from 'jwks-rsa';
+import jwksClient from 'jwks-rsa'
 import Jwt from 'jsonwebtoken'
-import { tokenResponse } from '~/type'
-import { error } from 'console';
+import { tokenResponse, verifyEvent } from '~/type'
+import { error } from 'console'
+import { H3Event } from 'h3'
 const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
-    console.log(event.node.req.url)
-    if ((event.node.req.url || '').indexOf('login') > -1 || (event.node.req.url || '').indexOf('/api/auth0') > -1)
-        return;
+    event.context.userInfo = await getUserInfoFromAuthToken(event)
+})
 
-    console.log(getCookie(event, 'refreshToken'))
+/**從登入狀態取得使用者資訊, 沒有則回傳null */
+async function getUserInfoFromAuthToken(event: H3Event): Promise<verifyEvent | null> {
     let accessToken = '';
+    // 未登入
     if (!getCookie(event, 'accessToken'))
-        throw createError({ statusCode: 401, statusMessage: 'no access information' })
+        return null;
 
     //Get AccessToken
     accessToken = getCookie(event, 'accessToken') || '';
@@ -29,7 +31,6 @@ export default defineEventHandler(async (event) => {
     try {
         Jwt.verify(accessToken, publicKey, { algorithms: ['RS256'] });
         isVerified = true;
-        console.log(4)
     } catch (e) {
         if (e instanceof Jwt.TokenExpiredError) {//access token is expired
             //Refresh token
@@ -92,7 +93,6 @@ export default defineEventHandler(async (event) => {
     if (isVerified) {
         console.log(55)
         const access_token = getCookie(event, 'accessToken')
-        console.log(access_token)
         //取得API回傳的Profile
         const getProfile = await $fetch<any>(`${env_value.public.AUTH0_DOMAIN}/userinfo`, {
             method: 'get',
@@ -101,14 +101,15 @@ export default defineEventHandler(async (event) => {
                 'Content-Type': 'application/json'
             }
         });
-        console.log(getProfile);
-    }
-    /*else
-        throw createError({ statusCode: 401, statusMessage: 'no verify' })*/
-})
 
-/**
- * Get public key by kid
+        console.log(getProfile)
+        return { sub: getProfile } satisfies verifyEvent
+    }
+    else
+        throw createError({ statusCode: 401, statusMessage: 'no verify' })
+}
+
+/**Get public key by kid
  * @param kid kid in access token's header
  */
 async function getPublicKey(kid: string) {
