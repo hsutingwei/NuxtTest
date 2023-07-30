@@ -29,8 +29,6 @@ export default defineEventHandler(async (event) => {
         });
         success = true;
         console.log(getToken);//86400//7200
-        // store id token
-        event.context.userIdToken = getToken.id_token
 
         // set access token in cookie
         setCookie(event, 'accessToken', getToken.access_token, {

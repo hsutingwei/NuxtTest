@@ -11,6 +11,9 @@ export async function getUserInfoFromAuthToken(event: H3Event): Promise<verifyEv
     if (!getCookie(event, 'accessToken'))
         return null;
 
+    console.log('in middleware')
+    console.log(getCookie(event, 'idToken'))
+
     //Get AccessToken
     accessToken = getCookie(event, 'accessToken') || '';
     //Decode AccessToken
