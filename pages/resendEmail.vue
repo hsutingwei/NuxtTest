@@ -6,6 +6,9 @@
 </template>
   
 <script lang="ts" setup>
+definePageMeta({
+    middleware: ["auth"]
+})
 const message = ref('');
 
 async function sendEmail() {
