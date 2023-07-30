@@ -36,7 +36,7 @@ export type tokenResponse = {
 };
 
 export type verifyEvent = {
-    sub: {
+    uInfo: {
         sub: string,
         nickname: string,
         name: string,

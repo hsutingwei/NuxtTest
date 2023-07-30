@@ -103,7 +103,7 @@ async function getUserInfoFromAuthToken(event: H3Event): Promise<verifyEvent | n
         });
 
         console.log(getProfile)
-        return { sub: getProfile } satisfies verifyEvent
+        return { uInfo: getProfile } satisfies verifyEvent
     }
     else
         throw createError({ statusCode: 401, statusMessage: 'no verify' })

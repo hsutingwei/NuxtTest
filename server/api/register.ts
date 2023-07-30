@@ -1,7 +1,4 @@
 import { LoginRequest, ApiResponse, PasswordValidationResult } from '~/type'
-import pg from 'pg'
-import crypto from 'crypto';
-import { json } from 'stream/consumers';
 const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {

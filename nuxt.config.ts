@@ -15,6 +15,7 @@ export default defineNuxtConfig({
         DB_CON: process.env.DB_CON,
         SECRET: process.env.SECRET,
         REFRESH_SECRET: process.env.REFRESH_SECRET,
+        EMAIL_VERFY_API: process.env.EMAIL_VERIFYCATION
     },
     plugins: [
         '~/plugins/vue3-google-login.client.ts',

@@ -1,6 +1,4 @@
-import { LoginRequest, ApiResponse } from '~/type';
-import { userOP } from '../utils/userTool';
-import { signJWT, verifyJWT } from '../utils/jwt'
+import { LoginRequest, ApiResponse } from '~/type'
 const env_value = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
