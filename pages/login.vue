@@ -12,7 +12,6 @@
 definePageMeta({
     middleware: ["auth"]
 })
-import { PasswordValidationResult } from '~/type'
 const username = ref('');
 const password = ref('');
 
